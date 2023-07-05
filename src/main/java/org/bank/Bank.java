@@ -14,6 +14,11 @@ public class Bank {
 
     //todo: implement!
     public Account getAccount(String accountId){
+        for(var account: accounts){
+            if (account.getHolder().equals(accountId)){
+                return account;
+            }
+        }
         return null;
     }
 
@@ -36,14 +41,76 @@ public class Bank {
             System.out.println("Scegliere l'opzione desiderata:");
             System.out.println("1 - Aggiunta conto corrente");
             System.out.println("2 - Stampa conti correnti");
+            System.out.println("3 - Operazione su conto");
+            System.out.println("4 - Stampa storico operazioni su conto");
+            System.out.println("0 - Uscita");
             scelta = sc.nextInt();
             switch (scelta) {
                 case 1 -> aggiungiConto();
                 case 2 -> stampaContiCorrenti();
+                case 3 -> operazioneSuConto();
+                case 4 -> stampaStoricoOperazioniConto();
                 case 0 -> System.out.println("Uscita in corso...");
                 default -> System.out.println("Input non valido");
             }
         } while (scelta != 0);
+    }
+
+    private void stampaStoricoOperazioniConto() {
+        System.out.println("stampa storico operazioni su conto");
+        var sc = new Scanner(System.in);
+        System.out.print("inserisci codice conto > ");
+        var holder = sc.nextLine();
+        var account = getAccount(holder);
+        if (account == null) {
+            System.err.println("ERRORE: conto inesistente");
+            return;
+        }
+        for(var transaction: account.getTransactions()){
+            String opType = "";
+            switch (transaction.getType()) {
+                case DEPOSIT -> opType = "deposito";
+                case WITHDRAW -> opType = "prelievo";
+            }
+            System.out.printf("%s : %f", opType, transaction.getAmount());
+            System.out.println();
+        }
+    }
+
+    private void operazioneSuConto()  {
+        System.out.println("Operazione su conto");
+        var sc = new Scanner(System.in);
+        System.out.print("inserisci codice conto > ");
+        var holder = sc.nextLine();
+        var account = getAccount(holder);
+        if (account == null) {
+            System.err.println("ERRORE: conto inesistente");
+            return;
+        }
+        int op = 0;
+        do {
+            System.out.print("Operazione da eseguire(1-deposito, 2-prelievo, 0-uscita) > ");
+            op = sc.nextInt();
+            switch (op) {
+                case 1 -> {
+                    System.out.print("Importo> ");
+                    var amount = sc.nextFloat();
+                    account.deposit(amount);
+                }
+                case 2 -> {
+                    try {
+                        System.out.print("Importo> ");
+                        var amount = sc.nextFloat();
+                        account.withdraw(amount);
+                    } catch (InsufficientFundsException e) {
+                        System.err.println("balance non sufficiente");
+                    }
+                }
+                case 0 -> System.out.println("ritorno al menu principale");
+                default -> System.out.println("Errore di scelta operazione");
+            }
+
+        } while (op != 0);
     }
 
     private void stampaContiCorrenti() {

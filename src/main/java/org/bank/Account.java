@@ -36,10 +36,17 @@ public class Account {
 
     public void deposit(float amount){
         balance += amount;
-        //todo: implement transaction
+        var tr = new Transaction(amount, TransactionType.DEPOSIT);
+        transactions.add(tr);
     }
 
-    public void withdraw(float amount){
-
+    public void withdraw(float amount) throws InsufficientFundsException {
+        if (amount > this.balance) {
+            throw new InsufficientFundsException("Insufficient founds in account");
+        } else {
+            this.balance -= amount;
+            var tr = new Transaction(amount, TransactionType.WITHDRAW);
+            transactions.add(tr);
+        }
     }
 }
